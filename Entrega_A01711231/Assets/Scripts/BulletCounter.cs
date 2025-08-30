@@ -14,6 +14,7 @@ public class BulletCounter : MonoBehaviour
     
     void Awake()
     {
+        // Implementar patrón Singleton
         if (Instance == null)
         {
             Instance = this;
@@ -29,6 +30,7 @@ public class BulletCounter : MonoBehaviour
         UpdateUI();
     }
     
+    // Añade una bala al contador
     public void AddBullet(bool isPlayerBullet = false)
     {
         activeBullets++;
@@ -39,6 +41,7 @@ public class BulletCounter : MonoBehaviour
         UpdateUI();
     }
     
+    // Remueve una bala del contador
     public void RemoveBullet(bool isPlayerBullet = false)
     {
         activeBullets--;
@@ -57,6 +60,7 @@ public class BulletCounter : MonoBehaviour
         UpdateUI();
     }
     
+    // Actualiza la interfaz de usuario con el conteo de balas
     void UpdateUI()
     {
         if (counterText != null)

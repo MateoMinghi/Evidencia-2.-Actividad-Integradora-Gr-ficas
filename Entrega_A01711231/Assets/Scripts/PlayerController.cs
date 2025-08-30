@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     
     void Start()
     {
-        // Posicionar al jugador en la parte inferior de la pantalla
+        // Inicializar posición del jugador en la parte inferior de la pantalla
         transform.position = new Vector3(0, -5f, 0);
         currentHealth = maxHealth;
     }
@@ -32,9 +32,9 @@ public class PlayerController : MonoBehaviour
         HandleShooting();
     }
     
+    // Maneja el movimiento del jugador basado en las teclas de flecha
     void HandleMovement()
     {
-        // Obtener input de las flechas
         float horizontal = 0f;
         float vertical = 0f;
         
@@ -48,20 +48,20 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKey(KeyCode.DownArrow))
             vertical = -1f;
         
-        // Aplicar movimiento
+        // Calcular nueva posición
         movement = new Vector3(horizontal, vertical, 0).normalized;
         Vector3 newPosition = transform.position + movement * moveSpeed * Time.deltaTime;
         
-        // Clampear posición dentro de los límites
+        // Restringir movimiento dentro de los límites
         newPosition.x = Mathf.Clamp(newPosition.x, -moveBounds, moveBounds);
         newPosition.y = Mathf.Clamp(newPosition.y, -6f, moveBoundsY);
         
         transform.position = newPosition;
     }
     
+    // Maneja el disparo automático del jugador
     void HandleShooting()
     {
-        // Disparo automático
         if (Time.time >= nextFireTime)
         {
             Shoot();
@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     
+    // Instancia y configura una bala disparada por el jugador
     void Shoot()
     {
         Vector3 spawnPosition = firePoint != null ? firePoint.position : transform.position + Vector3.up * 0.5f;
@@ -76,29 +77,28 @@ public class PlayerController : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
         Bullet bulletScript = bullet.GetComponent<Bullet>();
         
-        // Disparar hacia arriba (hacia el jefe)
+        // Configurar bala para disparar hacia arriba
         bulletScript.Initialize(Vector3.up, 8f, Color.yellow, true);
     }
     
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Detectar colisión con balas del jefe
+        // Verificar si colisiona con una bala enemiga
         Bullet bullet = other.GetComponent<Bullet>();
         if (bullet != null && !bullet.isPlayerBullet)
         {
-            Debug.Log("¡Jugador golpeado por bala del jefe!");
-            // Destruir la bala del jefe
+            // Destruir la bala enemiga
             Destroy(other.gameObject);
             
-            // Reducir vida del jugador
+            // Aplicar daño al jugador
             TakeDamage(1);
         }
     }
     
+    // Reduce la salud del jugador y verifica si muere
     void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        Debug.Log($"Player HP: {currentHealth}/{maxHealth}");
         
         if (currentHealth <= 0)
         {
@@ -106,10 +106,10 @@ public class PlayerController : MonoBehaviour
         }
     }
     
+    // Maneja la muerte del jugador
     void Die()
     {
-        Debug.Log("¡El jugador ha muerto!");
-        // Destruir el jugador
+        // Destruir el objeto del jugador
         Destroy(gameObject);
     }
 }
