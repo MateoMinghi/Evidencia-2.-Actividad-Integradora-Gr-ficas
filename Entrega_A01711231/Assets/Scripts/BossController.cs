@@ -14,6 +14,10 @@ public class BossController : MonoBehaviour
     [Header("Pattern Timing")]
     public float patternDuration = 10f;
     
+    [Header("Health")]
+    public int maxHealth = 20;
+    private int currentHealth;
+    
     private int currentPattern = 0;
     private Vector3 startPosition;
     private bool movingRight = true;
@@ -25,7 +29,43 @@ public class BossController : MonoBehaviour
     void Start()
     {
         startPosition = transform.position;
+        currentHealth = maxHealth;
         StartCoroutine(PatternSequence());
+    }
+    
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        // Detectar colisión con balas del jugador
+        Bullet bullet = other.GetComponent<Bullet>();
+        if (bullet != null && bullet.isPlayerBullet)
+        {
+            Debug.Log("¡Jefe golpeado por bala del jugador!");
+            // Destruir la bala del jugador
+            Destroy(other.gameObject);
+            
+            // Reducir vida del jefe
+            TakeDamage(1);
+        }
+    }
+    
+    void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        Debug.Log($"Boss HP: {currentHealth}/{maxHealth}");
+        
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    
+    void Die()
+    {
+        Debug.Log("¡El jefe ha sido derrotado!");
+        // Detener todas las corrutinas
+        StopAllCoroutines();
+        // Destruir el jefe
+        Destroy(gameObject);
     }
     
     void Update()
@@ -96,7 +136,7 @@ public class BossController : MonoBehaviour
                 case 2:
                     Debug.Log("Ejecutando MultiPointPattern - Patrón 3");
                     MultiPointPattern();
-                    yield return new WaitForSeconds(0.3f); // Más lento para ráfagas más intensas
+                    yield return new WaitForSeconds(0.3f);
                     timer += 0.3f;
                     break;
             }
@@ -106,7 +146,7 @@ public class BossController : MonoBehaviour
     // Patrón 1: Espiral rotativa
     void SpiralPattern()
     {
-        int bulletsPerRing = 8;
+        int bulletsPerRing = 6; // Reducido de 8 a 6
         
         for (int i = 0; i < bulletsPerRing; i++)
         {
@@ -124,7 +164,7 @@ public class BossController : MonoBehaviour
     // Patrón 2: Ondas sinusoidales
     void WavePattern()
     {
-        int bulletCount = 5;
+        int bulletCount = 3; // Reducido de 5 a 3
         
         for (int i = 0; i < bulletCount; i++)
         {
@@ -149,16 +189,12 @@ public class BossController : MonoBehaviour
     {
         Debug.Log("Creando balas del patrón 3...");
         
-        // Patrón simple: 4 direcciones principales (cruz) + diagonales
+        // Patrón reducido: solo 4 direcciones principales (cruz)
         Vector3[] directions = {
             Vector3.up,        // Arriba
             Vector3.down,      // Abajo  
             Vector3.left,      // Izquierda
-            Vector3.right,     // Derecha
-            new Vector3(1, 1, 0).normalized,   // Diagonal arriba-derecha
-            new Vector3(-1, 1, 0).normalized,  // Diagonal arriba-izquierda
-            new Vector3(1, -1, 0).normalized,  // Diagonal abajo-derecha
-            new Vector3(-1, -1, 0).normalized  // Diagonal abajo-izquierda
+            Vector3.right      // Derecha
         };
         
         // Crear una bala en cada dirección

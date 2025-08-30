@@ -7,6 +7,7 @@ public class Bullet : MonoBehaviour
     private bool useWaveMotion = false;
     private float wavePhase = 0f;
     private Vector3 baseDirection;
+    public bool isPlayerBullet = false; // Distinguir entre balas del jugador y del jefe
     
     void Update()
     {
@@ -14,11 +15,12 @@ public class Bullet : MonoBehaviour
         CheckBounds();
     }
     
-    public void Initialize(Vector3 dir, float spd, Color color)
+    public void Initialize(Vector3 dir, float spd, Color color, bool isPlayerBullet = false)
     {
         direction = dir.normalized;
         baseDirection = direction;
         speed = spd;
+        this.isPlayerBullet = isPlayerBullet;
         
         // Cambiar color del sprite
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
@@ -26,7 +28,7 @@ public class Bullet : MonoBehaviour
             sr.color = color;
         
         // Registrar la bala
-        BulletCounter.Instance.AddBullet();
+        BulletCounter.Instance.AddBullet(this.isPlayerBullet);
     }
     
     public void SetWaveMotion(bool useWave, float phase)
@@ -39,14 +41,14 @@ public class Bullet : MonoBehaviour
     {
         if (useWaveMotion)
         {
-            // Movimiento ondulante
+            //movimiento ondulante
             float wave = Mathf.Sin(Time.time * 3f + wavePhase) * 0.5f;
             Vector3 waveDirection = baseDirection + new Vector3(wave, 0, 0);
             transform.position += waveDirection.normalized * speed * Time.deltaTime;
         }
         else
         {
-            // Movimiento recto
+            //movimiento recto
             transform.position += direction * speed * Time.deltaTime;
         }
     }
@@ -63,7 +65,7 @@ public class Bullet : MonoBehaviour
     
     void DestroyBullet()
     {
-        BulletCounter.Instance.RemoveBullet();
+        BulletCounter.Instance.RemoveBullet(isPlayerBullet);
         Destroy(gameObject);
     }
     
@@ -71,6 +73,6 @@ public class Bullet : MonoBehaviour
     {
         // Asegurarse de que se reste del contador
         if (BulletCounter.Instance != null)
-            BulletCounter.Instance.RemoveBullet();
+            BulletCounter.Instance.RemoveBullet(isPlayerBullet);
     }
 }
